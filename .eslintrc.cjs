@@ -16,5 +16,9 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: "latest"
+  },
+  rules: {
+    "vue/multi-word-component-names": "off" // 禁用多字组件名称规则
+    // ...其他规则
   }
 };
