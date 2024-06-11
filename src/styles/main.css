@@ -1,0 +1,8 @@
+@import 'base.css';
+
+/**
+ * Tailwind CSS v3.4.4
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
