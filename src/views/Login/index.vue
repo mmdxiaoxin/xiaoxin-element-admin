@@ -63,18 +63,19 @@
 import { reactive, ref } from 'vue';
 import { Lock, User } from '@element-plus/icons-vue';
 import type { FormInstance } from 'element-plus';
+import type { Login } from '@/api/interface';
+import { loginApi } from '@/api/modules/user';
+import { useUserStore } from '@/stores/modules/user';
+import { toast } from '@/utils/common';
+import { useRouter } from 'vue-router';
+import { setToken } from '@/utils/auth';
 
 const formRef = ref<FormInstance | null>(null);
 const loading = ref(false);
-
-// 表单类型
-interface LoginForm {
-    username: string;
-    password: string;
-}
-
+const userStore = useUserStore();
+const router = useRouter();
 // 表单数据
-const loginForm = reactive<LoginForm>({
+const loginForm = reactive<Login.ReqLoginForm>({
     username: '',
     password: '',
 });
@@ -98,7 +99,22 @@ const rules = {
 };
 
 // 提交表单函数
-const onSubmit = () => {};
+const onSubmit = () => {
+    formRef.value?.validate(async (valid) => {
+        if (valid) {
+            loading.value = true;
+            const { data } = await loginApi(
+                loginForm.username,
+                loginForm.password,
+            );
+            userStore.user = data;
+            setToken(data.token);
+            router.push('/');
+            toast('登陆成功');
+            loading.value = false;
+        }
+    });
+};
 </script>
 
 <style scoped lang="scss">

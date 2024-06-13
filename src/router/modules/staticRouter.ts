@@ -9,14 +9,14 @@ export const staticRouter: RouteRecordRaw[] = [
         name: 'test',
         component: () => import('@/views/TestView.vue'),
     },
-    // {
-    //     path: LOGIN_URL,
-    //     name: 'login',
-    //     component: () => import('@/views/login/index.vue'),
-    //     meta: {
-    //         title: '登录',
-    //     },
-    // },
+    {
+        path: '/login',
+        name: 'login',
+        component: () => import('@/views/Login/index.vue'),
+        meta: {
+            title: '登录',
+        },
+    },
     // {
     //     path: REGISTER_URL,
     //     name: 'register',
@@ -38,7 +38,7 @@ export const staticRouter: RouteRecordRaw[] = [
 /**
  * errorRouter (错误页面路由)
  */
-export const errorRouter = [
+export const errorRoute = [
     {
         path: '/403',
         name: '403',
