@@ -25,9 +25,13 @@ const router = createRouter({
     strict: false,
 });
 
+// 防止重复获取用户信息
+let hasGetInfo = false;
 router.beforeEach(async (to, from, next) => {
     const token = getToken();
     const userStore = useUserStore();
+
+    Nprogress.start();
 
     if (!token && to.path !== '/login') {
         toast('请先登录', 'error');
@@ -35,13 +39,18 @@ router.beforeEach(async (to, from, next) => {
     }
 
     if (token && to.path === '/login') {
-        return next({ path: '/' });
+        return next({ path: from.path ? from.path : '/' });
     }
 
-    if (token !== null) {
+    if (token && !hasGetInfo) {
         await userStore.getUserInfo();
+        hasGetInfo = true;
     }
     next();
+});
+
+router.afterEach(() => {
+    Nprogress.done();
 });
 
 export default router;
