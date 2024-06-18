@@ -93,12 +93,12 @@ export function useCookies(
         },
         remove: (
             name: string,
-            optons: Record<string, any> = {},
+            options: Record<string, any> = {},
         ) => {
             cookies.remove(name, options);
         },
         addChangeListener: (listener: () => void) => {
-            cookes.addChangeListener(listener);
+            cookies.addChangeListener(listener);
         },
         removeChangeListener: (listener: () => void) => {
             cookies.removeChangeListener(listener);
