@@ -5,7 +5,7 @@ import {
 } from 'vue-router';
 import {
     errorRoute,
-    staticRouter,
+    staticRoute,
 } from '@/router/modules/staticRouter';
 import { getToken } from '@/utils/auth';
 import { toast } from '@/utils/common';
@@ -21,7 +21,7 @@ const routerMode = {
 
 const router = createRouter({
     history: routerMode[mode](),
-    routes: [...staticRouter, ...errorRoute],
+    routes: [...staticRoute, ...errorRoute],
     strict: false,
 });
 
@@ -49,6 +49,17 @@ router.beforeEach(async (to, from, next) => {
     next();
 });
 
+/**
+ * @description 路由跳转错误
+ * */
+router.onError((error) => {
+    Nprogress.done();
+    console.warn('路由错误', error.message);
+});
+
+/**
+ * @description 路由跳转结束
+ * */
 router.afterEach(() => {
     Nprogress.done();
 });
