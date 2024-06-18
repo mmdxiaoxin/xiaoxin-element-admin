@@ -4,6 +4,8 @@ import { UniversalCookie } from '@/utils/universal-cookie';
 import { onUnmounted, ref } from 'vue';
 
 type IncomingMessage = Connect.IncomingMessage;
+type BasicType = number | string | boolean | null;
+type ArrayType = number[] | string[] | boolean[];
 
 function shouldUpdate(
     dependencies: string[] | null,
@@ -84,11 +86,14 @@ export function useCookies(
             touches.value;
             return cookies.getAll(doNotParse);
         },
-        set: (
+        set: <T = any>(
             name: string,
-            value: string,
+            value: BasicType | ArrayType | Array<T>,
             options: Record<string, any> = {},
         ) => {
+            if (typeof value !== 'string') {
+                value = JSON.stringify(value);
+            }
             cookies.set(name, value, options);
         },
         remove: (
