@@ -3,17 +3,17 @@ import type { RouteRecordRaw } from 'vue-router';
 /**
  * staticRouter (静态路由)
  */
-export const staticRouter: RouteRecordRaw[] = [
+export const staticRoute: RouteRecordRaw[] = [
     {
         path: '/',
         name: 'test',
-        component: () => import('@/views/TestView.vue'),
+        component: () =>
+            import('@/layouts/LayoutDefault/LayoutDefault.vue'),
     },
     {
         path: '/login',
         name: 'login',
-        component: () => import('@/views/Login/index.vue'),
-        meta: {
+        component: () => import('@/"@/views/login/index.vue"        meta: {
             title: '登录',
         },
     },
