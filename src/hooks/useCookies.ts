@@ -1,81 +1,107 @@
-import { ref } from 'vue';
-import type { Ref } from 'vue';
+import type { Connect } from 'vite';
+import type { RawCookies } from '@/utils/universal-cookie';
+import { UniversalCookie } from '@/utils/universal-cookie';
+import { onUnmounted, ref } from 'vue';
 
-const setCookie = (
-    name: string,
-    value: string,
-    days?: number,
-): void => {
-    let expires = '';
-    if (days) {
-        const date: Date = new Date();
-        date.setTime(
-            date.getTime() + days * 24 * 60 * 60 * 1000,
-        );
-        expires = `; expires=${date.toUTCString()}`;
+type IncomingMessage = Connect.IncomingMessage;
+
+function shouldUpdate(
+    dependencies: string[] | null,
+    newCookies: RawCookies,
+    oldCookies: RawCookies,
+) {
+    if (!dependencies) return true;
+
+    for (const dependency of dependencies) {
+        if (newCookies[dependency] !== oldCookies[dependency])
+            return true;
     }
-    document.cookie = `${name}=${value || ''}${expires}; path=/`;
-};
 
-const getCookie = (name: string): string | null => {
-    const nameEQ = `${name}=`;
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0)
-            return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-};
-
-const eraseCookie = (name: string): void => {
-    document.cookie = `${name}=; Max-Age=-99999999;`;
-};
-
-// Type definition for the cookie object
-interface CookieObject {
-    [key: string]: string;
+    return false;
 }
 
-// `useCookies` composition function
-export function useCookies() {
-    const cookies: Ref<CookieObject> = ref({});
+export function createCookies(req?: IncomingMessage) {
+    const cookieString = req ? req.headers.cookie || '' : null;
+    const cookieInstance = new UniversalCookie(cookieString);
+    return (
+        dependencies?: string[] | null,
+        {
+            doNotParse = false,
+            autoUpdateDependencies = false,
+        } = {},
+    ) =>
+        useCookies(
+            dependencies,
+            { doNotParse, autoUpdateDependencies },
+            cookieInstance,
+        );
+}
 
-    const updateCookies = (): void => {
-        const cookieArray = document.cookie.split(';');
-        const cookieObj: CookieObject = {};
-        cookieArray.forEach((cookie) => {
-            const [name, value] = cookie.split('=');
-            cookieObj[name.trim()] = value;
-        });
-        cookies.value = cookieObj;
+export function useCookies(
+    dependencies?: string[] | null,
+    { doNotParse = false, autoUpdateDependencies = false } = {},
+    cookies = new UniversalCookie(),
+) {
+    const watchingDependencies = autoUpdateDependencies
+        ? [...(dependencies || [])]
+        : dependencies;
+
+    let previousCookies = cookies.getAll(doNotParse);
+    const touches = ref(0);
+    const onChange = () => {
+        const newCookies = cookies.getAll(doNotParse);
+        if (
+            shouldUpdate(
+                watchingDependencies || null,
+                newCookies,
+                previousCookies,
+            )
+        ) {
+            touches.value++;
+        }
+        previousCookies = newCookies;
     };
 
-    const set = (
-        name: string,
-        value: string,
-        days?: number,
-    ): void => {
-        setCookie(name, value, days);
-        updateCookies();
-    };
+    cookies.addChangeListener(onChange);
 
-    const get = (name: string): string | null => {
-        return getCookie(name);
-    };
-
-    const remove = (name: string): void => {
-        eraseCookie(name);
-        updateCookies();
-    };
-
-    updateCookies();
+    onUnmounted(() => {
+        cookies.removeChangeListener(onChange);
+    });
 
     return {
-        cookies,
-        set,
-        get,
-        remove,
+        get: (name: string) => {
+            if (
+                autoUpdateDependencies &&
+                watchingDependencies &&
+                !watchingDependencies.includes(name)
+            ) {
+                watchingDependencies.push(name);
+            }
+            touches.value; // Trigger reactivity
+            return cookies.get(name, doNotParse);
+        },
+        getAll: () => {
+            touches.value;
+            return cookies.getAll(doNotParse);
+        },
+        set: (
+            name: string,
+            value: string,
+            options: Record<string, any> = {},
+        ) => {
+            cookies.set(name, value, options);
+        },
+        remove: (
+            name: string,
+            optons: Record<string, any> = {},
+        ) => {
+            cookies.remove(name, options);
+        },
+        addChangeListener: (listener: () => void) => {
+            cookes.addChangeListener(listener);
+        },
+        removeChangeListener: (listener: () => void) => {
+            cookies.removeChangeListener(listener);
+        },
     };
 }
