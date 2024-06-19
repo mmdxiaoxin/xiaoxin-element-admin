@@ -3,7 +3,7 @@
 //     | 'classic'
 //     | 'transverse'
 //     | 'columns';
-export type LayoutType = 'vertical';
+export type LayoutType = 'classic' | 'columns';
 
 export type AssemblySizeType = 'large' | 'default' | 'small';
 

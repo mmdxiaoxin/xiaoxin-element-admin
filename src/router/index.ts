@@ -11,6 +11,8 @@ import { getToken } from '@/utils/auth';
 import { toast } from '@/utils/common';
 import { useUserStore } from '@/stores/modules/user';
 import Nprogress from '@/config/nprogress';
+import { addRoutes } from '@/router/modules/dynamicRouter';
+import { getUserInfoApi } from '@/api/modules/user';
 
 const mode = 'hash';
 

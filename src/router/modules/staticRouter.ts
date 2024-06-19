@@ -6,9 +6,8 @@ import type { RouteRecordRaw } from 'vue-router';
 export const staticRoute: RouteRecordRaw[] = [
     {
         path: '/',
-        name: 'test',
-        component: () =>
-            import('@/layouts/LayoutDefault/LayoutDefault.vue'),
+        name: 'layout',
+        component: () => import('@/layouts/index.vue'),
     },
     {
         path: '/login',

@@ -4,3 +4,7 @@
     padding: 0;
 }
 
+body {
+    opacity: 1;
+    background: rgba(243, 245, 251, 1);
+}
